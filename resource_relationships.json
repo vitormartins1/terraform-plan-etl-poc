@@ -1,0 +1,307 @@
+[
+  {
+    "from": "aws_iam_policy.lambda_s3_policy",
+    "to": "module.s3_bucket",
+    "type": "depends_on"
+  },
+  {
+    "from": "aws_iam_policy_attachment.lambda_s3_policy_attachment",
+    "to": "module.lambda_function",
+    "type": "reference"
+  },
+  {
+    "from": "aws_iam_policy_attachment.lambda_s3_policy_attachment",
+    "to": "aws_iam_policy.lambda_s3_policy",
+    "type": "reference"
+  },
+  {
+    "from": "aws_sns_topic_subscription.example_subscription",
+    "to": "aws_sns_topic.example_topic",
+    "type": "reference"
+  },
+  {
+    "from": "aws_sns_topic_subscription.example_subscription",
+    "to": "aws_sqs_queue.example_queue",
+    "type": "reference"
+  },
+  {
+    "from": "aws_sns_topic_subscription.example_subscription",
+    "to": "aws_sqs_queue_policy.example_policy",
+    "type": "depends_on"
+  },
+  {
+    "from": "aws_sqs_queue_policy.example_policy",
+    "to": "aws_sqs_queue.example_queue",
+    "type": "reference"
+  },
+  {
+    "from": "aws_sqs_queue_policy.example_policy",
+    "to": "aws_sns_topic.example_topic",
+    "type": "reference"
+  },
+  {
+    "from": "aws_iam_role_policy_attachment.additional_inline",
+    "to": "aws_iam_policy.additional_inline",
+    "type": "reference"
+  },
+  {
+    "from": "aws_iam_role_policy_attachment.additional_inline",
+    "to": "aws_iam_role.lambda",
+    "type": "reference"
+  },
+  {
+    "from": "aws_iam_role_policy_attachment.additional_json",
+    "to": "aws_iam_policy.additional_json",
+    "type": "reference"
+  },
+  {
+    "from": "aws_iam_role_policy_attachment.additional_json",
+    "to": "aws_iam_role.lambda",
+    "type": "reference"
+  },
+  {
+    "from": "aws_iam_role_policy_attachment.additional_jsons",
+    "to": "aws_iam_role.lambda",
+    "type": "reference"
+  },
+  {
+    "from": "aws_iam_role_policy_attachment.additional_jsons",
+    "to": "aws_iam_policy.additional_jsons",
+    "type": "reference"
+  },
+  {
+    "from": "aws_iam_role_policy_attachment.additional_many",
+    "to": "aws_iam_role.lambda",
+    "type": "reference"
+  },
+  {
+    "from": "aws_iam_role_policy_attachment.additional_one",
+    "to": "aws_iam_role.lambda",
+    "type": "reference"
+  },
+  {
+    "from": "aws_iam_role_policy_attachment.async",
+    "to": "aws_iam_policy.async[0]",
+    "type": "reference"
+  },
+  {
+    "from": "aws_iam_role_policy_attachment.async",
+    "to": "aws_iam_role.lambda",
+    "type": "reference"
+  },
+  {
+    "from": "aws_iam_role_policy_attachment.dead_letter",
+    "to": "aws_iam_role.lambda",
+    "type": "reference"
+  },
+  {
+    "from": "aws_iam_role_policy_attachment.dead_letter",
+    "to": "aws_iam_policy.dead_letter",
+    "type": "reference"
+  },
+  {
+    "from": "aws_iam_role_policy_attachment.logs",
+    "to": "aws_iam_policy.logs",
+    "type": "reference"
+  },
+  {
+    "from": "aws_iam_role_policy_attachment.logs",
+    "to": "aws_iam_role.lambda",
+    "type": "reference"
+  },
+  {
+    "from": "aws_iam_role_policy_attachment.tracing",
+    "to": "aws_iam_policy.tracing[0]",
+    "type": "reference"
+  },
+  {
+    "from": "aws_iam_role_policy_attachment.tracing",
+    "to": "aws_iam_role.lambda",
+    "type": "reference"
+  },
+  {
+    "from": "aws_iam_role_policy_attachment.vpc",
+    "to": "aws_iam_role.lambda",
+    "type": "reference"
+  },
+  {
+    "from": "aws_iam_role_policy_attachment.vpc",
+    "to": "aws_iam_policy.vpc",
+    "type": "reference"
+  },
+  {
+    "from": "aws_lambda_event_source_mapping.this",
+    "to": "aws_lambda_function.this[0]",
+    "type": "reference"
+  },
+  {
+    "from": "aws_lambda_function.this",
+    "to": "aws_iam_role_policy_attachment.async",
+    "type": "depends_on"
+  },
+  {
+    "from": "aws_lambda_function.this",
+    "to": "aws_iam_role.lambda",
+    "type": "reference"
+  },
+  {
+    "from": "aws_lambda_function.this",
+    "to": "aws_s3_object.lambda_package",
+    "type": "depends_on"
+  },
+  {
+    "from": "aws_lambda_function.this",
+    "to": "aws_cloudwatch_log_group.lambda",
+    "type": "depends_on"
+  },
+  {
+    "from": "aws_lambda_function_event_invoke_config.this",
+    "to": "aws_lambda_function.this[0]",
+    "type": "reference"
+  },
+  {
+    "from": "aws_lambda_function_url.this",
+    "to": "aws_lambda_function.this[0]",
+    "type": "reference"
+  },
+  {
+    "from": "aws_lambda_layer_version.this",
+    "to": "aws_s3_object.lambda_package",
+    "type": "depends_on"
+  },
+  {
+    "from": "aws_lambda_permission.current_version_triggers",
+    "to": "aws_lambda_function.this[0]",
+    "type": "reference"
+  },
+  {
+    "from": "aws_lambda_permission.unqualified_alias_triggers",
+    "to": "aws_lambda_function.this[0]",
+    "type": "reference"
+  },
+  {
+    "from": "aws_lambda_provisioned_concurrency_config.current_version",
+    "to": "aws_lambda_function.this[0]",
+    "type": "reference"
+  },
+  {
+    "from": "aws_s3_bucket_accelerate_configuration.this",
+    "to": "aws_s3_bucket.this",
+    "type": "reference"
+  },
+  {
+    "from": "aws_s3_bucket_acl.this",
+    "to": "aws_s3_bucket.this",
+    "type": "reference"
+  },
+  {
+    "from": "aws_s3_bucket_acl.this",
+    "to": "aws_s3_bucket_ownership_controls.this",
+    "type": "depends_on"
+  },
+  {
+    "from": "aws_s3_bucket_analytics_configuration.this",
+    "to": "aws_s3_bucket.this",
+    "type": "reference"
+  },
+  {
+    "from": "aws_s3_bucket_cors_configuration.this",
+    "to": "aws_s3_bucket.this",
+    "type": "reference"
+  },
+  {
+    "from": "aws_s3_bucket_intelligent_tiering_configuration.this",
+    "to": "aws_s3_bucket.this",
+    "type": "reference"
+  },
+  {
+    "from": "aws_s3_bucket_inventory.this",
+    "to": "aws_s3_bucket.this",
+    "type": "reference"
+  },
+  {
+    "from": "aws_s3_bucket_lifecycle_configuration.this",
+    "to": "aws_s3_bucket.this",
+    "type": "reference"
+  },
+  {
+    "from": "aws_s3_bucket_lifecycle_configuration.this",
+    "to": "aws_s3_bucket_versioning.this",
+    "type": "depends_on"
+  },
+  {
+    "from": "aws_s3_bucket_logging.this",
+    "to": "aws_s3_bucket.this",
+    "type": "reference"
+  },
+  {
+    "from": "aws_s3_bucket_metric.this",
+    "to": "aws_s3_bucket.this",
+    "type": "reference"
+  },
+  {
+    "from": "aws_s3_bucket_object_lock_configuration.this",
+    "to": "aws_s3_bucket.this",
+    "type": "reference"
+  },
+  {
+    "from": "aws_s3_bucket_ownership_controls.this",
+    "to": "aws_s3_bucket_policy.this",
+    "type": "depends_on"
+  },
+  {
+    "from": "aws_s3_bucket_ownership_controls.this",
+    "to": "aws_s3_bucket_public_access_block.this",
+    "type": "depends_on"
+  },
+  {
+    "from": "aws_s3_bucket_ownership_controls.this",
+    "to": "aws_s3_bucket.this",
+    "type": "depends_on"
+  },
+  {
+    "from": "aws_s3_bucket_policy.this",
+    "to": "aws_s3_bucket.this",
+    "type": "reference"
+  },
+  {
+    "from": "aws_s3_bucket_policy.this",
+    "to": "aws_s3_bucket_public_access_block.this",
+    "type": "depends_on"
+  },
+  {
+    "from": "aws_s3_bucket_public_access_block.this",
+    "to": "aws_s3_bucket.this",
+    "type": "reference"
+  },
+  {
+    "from": "aws_s3_bucket_replication_configuration.this",
+    "to": "aws_s3_bucket.this",
+    "type": "reference"
+  },
+  {
+    "from": "aws_s3_bucket_replication_configuration.this",
+    "to": "aws_s3_bucket_versioning.this",
+    "type": "depends_on"
+  },
+  {
+    "from": "aws_s3_bucket_request_payment_configuration.this",
+    "to": "aws_s3_bucket.this",
+    "type": "reference"
+  },
+  {
+    "from": "aws_s3_bucket_server_side_encryption_configuration.this",
+    "to": "aws_s3_bucket.this",
+    "type": "reference"
+  },
+  {
+    "from": "aws_s3_bucket_versioning.this",
+    "to": "aws_s3_bucket.this",
+    "type": "reference"
+  },
+  {
+    "from": "aws_s3_bucket_website_configuration.this",
+    "to": "aws_s3_bucket.this",
+    "type": "reference"
+  }
+]

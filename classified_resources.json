@@ -1,0 +1,2343 @@
+{
+  "aws_iam_policy": [
+    {
+      "address": "aws_iam_policy.lambda_s3_policy",
+      "mode": "managed",
+      "type": "aws_iam_policy",
+      "name": "lambda_s3_policy",
+      "provider_config_key": "aws",
+      "expressions": {
+        "name": {
+          "constant_value": "lambda-s3-policy"
+        },
+        "policy": {
+          "references": [
+            "module.s3_bucket.s3_bucket_arn",
+            "module.s3_bucket",
+            "module.s3_bucket.s3_bucket_arn",
+            "module.s3_bucket"
+          ]
+        }
+      },
+      "schema_version": 0,
+      "depends_on": [
+        "module.lambda_function",
+        "module.s3_bucket"
+      ]
+    }
+  ],
+  "aws_iam_policy_attachment": [
+    {
+      "address": "aws_iam_policy_attachment.lambda_s3_policy_attachment",
+      "mode": "managed",
+      "type": "aws_iam_policy_attachment",
+      "name": "lambda_s3_policy_attachment",
+      "provider_config_key": "aws",
+      "expressions": {
+        "name": {
+          "constant_value": "lambda-s3-policy-attachment"
+        },
+        "policy_arn": {
+          "references": [
+            "aws_iam_policy.lambda_s3_policy.arn",
+            "aws_iam_policy.lambda_s3_policy"
+          ]
+        },
+        "roles": {
+          "references": [
+            "module.lambda_function.lambda_role_name",
+            "module.lambda_function"
+          ]
+        }
+      },
+      "schema_version": 0
+    }
+  ],
+  "aws_sns_topic": [
+    {
+      "address": "aws_sns_topic.example_topic",
+      "mode": "managed",
+      "type": "aws_sns_topic",
+      "name": "example_topic",
+      "provider_config_key": "aws",
+      "expressions": {
+        "name": {
+          "constant_value": "example-topic"
+        }
+      },
+      "schema_version": 0
+    }
+  ],
+  "aws_sns_topic_subscription": [
+    {
+      "address": "aws_sns_topic_subscription.example_subscription",
+      "mode": "managed",
+      "type": "aws_sns_topic_subscription",
+      "name": "example_subscription",
+      "provider_config_key": "aws",
+      "expressions": {
+        "endpoint": {
+          "references": [
+            "aws_sqs_queue.example_queue.arn",
+            "aws_sqs_queue.example_queue"
+          ]
+        },
+        "protocol": {
+          "constant_value": "sqs"
+        },
+        "topic_arn": {
+          "references": [
+            "aws_sns_topic.example_topic.arn",
+            "aws_sns_topic.example_topic"
+          ]
+        }
+      },
+      "schema_version": 0,
+      "depends_on": [
+        "aws_sqs_queue_policy.example_policy"
+      ]
+    }
+  ],
+  "aws_sqs_queue": [
+    {
+      "address": "aws_sqs_queue.example_queue",
+      "mode": "managed",
+      "type": "aws_sqs_queue",
+      "name": "example_queue",
+      "provider_config_key": "aws",
+      "expressions": {
+        "name": {
+          "constant_value": "example-queue"
+        },
+        "visibility_timeout_seconds": {
+          "constant_value": 30
+        }
+      },
+      "schema_version": 0
+    }
+  ],
+  "aws_sqs_queue_policy": [
+    {
+      "address": "aws_sqs_queue_policy.example_policy",
+      "mode": "managed",
+      "type": "aws_sqs_queue_policy",
+      "name": "example_policy",
+      "provider_config_key": "aws",
+      "expressions": {
+        "policy": {
+          "references": [
+            "aws_sqs_queue.example_queue.arn",
+            "aws_sqs_queue.example_queue",
+            "aws_sns_topic.example_topic.arn",
+            "aws_sns_topic.example_topic"
+          ]
+        },
+        "queue_url": {
+          "references": [
+            "aws_sqs_queue.example_queue.id",
+            "aws_sqs_queue.example_queue"
+          ]
+        }
+      },
+      "schema_version": 1
+    }
+  ],
+  "module.lambda_function.aws_cloudwatch_log_group": [
+    {
+      "address": "aws_cloudwatch_log_group.lambda",
+      "mode": "managed",
+      "type": "aws_cloudwatch_log_group",
+      "name": "lambda",
+      "provider_config_key": "aws",
+      "expressions": {
+        "kms_key_id": {
+          "references": [
+            "var.cloudwatch_logs_kms_key_id"
+          ]
+        },
+        "name": {
+          "references": [
+            "var.lambda_at_edge",
+            "var.function_name"
+          ]
+        },
+        "retention_in_days": {
+          "references": [
+            "var.cloudwatch_logs_retention_in_days"
+          ]
+        },
+        "tags": {
+          "references": [
+            "var.tags",
+            "var.cloudwatch_logs_tags"
+          ]
+        }
+      },
+      "schema_version": 0,
+      "count_expression": {
+        "references": [
+          "local.create",
+          "var.create_function",
+          "var.create_layer",
+          "var.use_existing_cloudwatch_log_group"
+        ]
+      }
+    }
+  ],
+  "module.lambda_function.aws_iam_policy": [
+    {
+      "address": "aws_iam_policy.additional_inline",
+      "mode": "managed",
+      "type": "aws_iam_policy",
+      "name": "additional_inline",
+      "provider_config_key": "aws",
+      "expressions": {
+        "name": {
+          "references": [
+            "local.policy_name"
+          ]
+        },
+        "path": {
+          "references": [
+            "var.policy_path"
+          ]
+        },
+        "policy": {
+          "references": [
+            "data.aws_iam_policy_document.additional_inline[0].json",
+            "data.aws_iam_policy_document.additional_inline[0]",
+            "data.aws_iam_policy_document.additional_inline"
+          ]
+        },
+        "tags": {
+          "references": [
+            "var.tags"
+          ]
+        }
+      },
+      "schema_version": 0,
+      "count_expression": {
+        "references": [
+          "local.create_role",
+          "var.attach_policy_statements"
+        ]
+      }
+    },
+    {
+      "address": "aws_iam_policy.additional_json",
+      "mode": "managed",
+      "type": "aws_iam_policy",
+      "name": "additional_json",
+      "provider_config_key": "aws",
+      "expressions": {
+        "name": {
+          "references": [
+            "local.policy_name"
+          ]
+        },
+        "path": {
+          "references": [
+            "var.policy_path"
+          ]
+        },
+        "policy": {
+          "references": [
+            "var.policy_json"
+          ]
+        },
+        "tags": {
+          "references": [
+            "var.tags"
+          ]
+        }
+      },
+      "schema_version": 0,
+      "count_expression": {
+        "references": [
+          "local.create_role",
+          "var.attach_policy_json"
+        ]
+      }
+    },
+    {
+      "address": "aws_iam_policy.additional_jsons",
+      "mode": "managed",
+      "type": "aws_iam_policy",
+      "name": "additional_jsons",
+      "provider_config_key": "aws",
+      "expressions": {
+        "name": {
+          "references": [
+            "local.policy_name",
+            "count.index"
+          ]
+        },
+        "path": {
+          "references": [
+            "var.policy_path"
+          ]
+        },
+        "policy": {
+          "references": [
+            "var.policy_jsons",
+            "count.index"
+          ]
+        },
+        "tags": {
+          "references": [
+            "var.tags"
+          ]
+        }
+      },
+      "schema_version": 0,
+      "count_expression": {
+        "references": [
+          "local.create_role",
+          "var.attach_policy_jsons",
+          "var.number_of_policy_jsons"
+        ]
+      }
+    },
+    {
+      "address": "aws_iam_policy.async",
+      "mode": "managed",
+      "type": "aws_iam_policy",
+      "name": "async",
+      "provider_config_key": "aws",
+      "expressions": {
+        "name": {
+          "references": [
+            "local.policy_name"
+          ]
+        },
+        "path": {
+          "references": [
+            "var.policy_path"
+          ]
+        },
+        "policy": {
+          "references": [
+            "data.aws_iam_policy_document.async[0].json",
+            "data.aws_iam_policy_document.async[0]",
+            "data.aws_iam_policy_document.async"
+          ]
+        },
+        "tags": {
+          "references": [
+            "var.tags"
+          ]
+        }
+      },
+      "schema_version": 0,
+      "count_expression": {
+        "references": [
+          "local.create_role",
+          "var.attach_async_event_policy"
+        ]
+      }
+    },
+    {
+      "address": "aws_iam_policy.dead_letter",
+      "mode": "managed",
+      "type": "aws_iam_policy",
+      "name": "dead_letter",
+      "provider_config_key": "aws",
+      "expressions": {
+        "name": {
+          "references": [
+            "local.policy_name"
+          ]
+        },
+        "path": {
+          "references": [
+            "var.policy_path"
+          ]
+        },
+        "policy": {
+          "references": [
+            "data.aws_iam_policy_document.dead_letter[0].json",
+            "data.aws_iam_policy_document.dead_letter[0]",
+            "data.aws_iam_policy_document.dead_letter"
+          ]
+        },
+        "tags": {
+          "references": [
+            "var.tags"
+          ]
+        }
+      },
+      "schema_version": 0,
+      "count_expression": {
+        "references": [
+          "local.create_role",
+          "var.attach_dead_letter_policy"
+        ]
+      }
+    },
+    {
+      "address": "aws_iam_policy.logs",
+      "mode": "managed",
+      "type": "aws_iam_policy",
+      "name": "logs",
+      "provider_config_key": "aws",
+      "expressions": {
+        "name": {
+          "references": [
+            "local.policy_name"
+          ]
+        },
+        "path": {
+          "references": [
+            "var.policy_path"
+          ]
+        },
+        "policy": {
+          "references": [
+            "data.aws_iam_policy_document.logs[0].json",
+            "data.aws_iam_policy_document.logs[0]",
+            "data.aws_iam_policy_document.logs"
+          ]
+        },
+        "tags": {
+          "references": [
+            "var.tags"
+          ]
+        }
+      },
+      "schema_version": 0,
+      "count_expression": {
+        "references": [
+          "local.create_role",
+          "var.attach_cloudwatch_logs_policy"
+        ]
+      }
+    },
+    {
+      "address": "aws_iam_policy.tracing",
+      "mode": "managed",
+      "type": "aws_iam_policy",
+      "name": "tracing",
+      "provider_config_key": "aws",
+      "expressions": {
+        "name": {
+          "references": [
+            "local.policy_name"
+          ]
+        },
+        "path": {
+          "references": [
+            "var.policy_path"
+          ]
+        },
+        "policy": {
+          "references": [
+            "data.aws_iam_policy.tracing[0].policy",
+            "data.aws_iam_policy.tracing[0]",
+            "data.aws_iam_policy.tracing"
+          ]
+        },
+        "tags": {
+          "references": [
+            "var.tags"
+          ]
+        }
+      },
+      "schema_version": 0,
+      "count_expression": {
+        "references": [
+          "local.create_role",
+          "var.attach_tracing_policy"
+        ]
+      }
+    },
+    {
+      "address": "aws_iam_policy.vpc",
+      "mode": "managed",
+      "type": "aws_iam_policy",
+      "name": "vpc",
+      "provider_config_key": "aws",
+      "expressions": {
+        "name": {
+          "references": [
+            "local.policy_name"
+          ]
+        },
+        "path": {
+          "references": [
+            "var.policy_path"
+          ]
+        },
+        "policy": {
+          "references": [
+            "data.aws_iam_policy.vpc[0].policy",
+            "data.aws_iam_policy.vpc[0]",
+            "data.aws_iam_policy.vpc"
+          ]
+        },
+        "tags": {
+          "references": [
+            "var.tags"
+          ]
+        }
+      },
+      "schema_version": 0,
+      "count_expression": {
+        "references": [
+          "local.create_role",
+          "var.attach_network_policy"
+        ]
+      }
+    }
+  ],
+  "module.lambda_function.aws_iam_role": [
+    {
+      "address": "aws_iam_role.lambda",
+      "mode": "managed",
+      "type": "aws_iam_role",
+      "name": "lambda",
+      "provider_config_key": "aws",
+      "expressions": {
+        "assume_role_policy": {
+          "references": [
+            "data.aws_iam_policy_document.assume_role[0].json",
+            "data.aws_iam_policy_document.assume_role[0]",
+            "data.aws_iam_policy_document.assume_role"
+          ]
+        },
+        "description": {
+          "references": [
+            "var.role_description"
+          ]
+        },
+        "force_detach_policies": {
+          "references": [
+            "var.role_force_detach_policies"
+          ]
+        },
+        "max_session_duration": {
+          "references": [
+            "var.role_maximum_session_duration"
+          ]
+        },
+        "name": {
+          "references": [
+            "local.role_name"
+          ]
+        },
+        "path": {
+          "references": [
+            "var.role_path"
+          ]
+        },
+        "permissions_boundary": {
+          "references": [
+            "var.role_permissions_boundary"
+          ]
+        },
+        "tags": {
+          "references": [
+            "var.tags",
+            "var.role_tags"
+          ]
+        }
+      },
+      "schema_version": 0,
+      "count_expression": {
+        "references": [
+          "local.create_role"
+        ]
+      }
+    }
+  ],
+  "module.lambda_function.aws_iam_role_policy_attachment": [
+    {
+      "address": "aws_iam_role_policy_attachment.additional_inline",
+      "mode": "managed",
+      "type": "aws_iam_role_policy_attachment",
+      "name": "additional_inline",
+      "provider_config_key": "aws",
+      "expressions": {
+        "policy_arn": {
+          "references": [
+            "aws_iam_policy.additional_inline[0].arn",
+            "aws_iam_policy.additional_inline[0]",
+            "aws_iam_policy.additional_inline"
+          ]
+        },
+        "role": {
+          "references": [
+            "aws_iam_role.lambda[0].name",
+            "aws_iam_role.lambda[0]",
+            "aws_iam_role.lambda"
+          ]
+        }
+      },
+      "schema_version": 0,
+      "count_expression": {
+        "references": [
+          "local.create_role",
+          "var.attach_policy_statements"
+        ]
+      }
+    },
+    {
+      "address": "aws_iam_role_policy_attachment.additional_json",
+      "mode": "managed",
+      "type": "aws_iam_role_policy_attachment",
+      "name": "additional_json",
+      "provider_config_key": "aws",
+      "expressions": {
+        "policy_arn": {
+          "references": [
+            "aws_iam_policy.additional_json[0].arn",
+            "aws_iam_policy.additional_json[0]",
+            "aws_iam_policy.additional_json"
+          ]
+        },
+        "role": {
+          "references": [
+            "aws_iam_role.lambda[0].name",
+            "aws_iam_role.lambda[0]",
+            "aws_iam_role.lambda"
+          ]
+        }
+      },
+      "schema_version": 0,
+      "count_expression": {
+        "references": [
+          "local.create_role",
+          "var.attach_policy_json"
+        ]
+      }
+    },
+    {
+      "address": "aws_iam_role_policy_attachment.additional_jsons",
+      "mode": "managed",
+      "type": "aws_iam_role_policy_attachment",
+      "name": "additional_jsons",
+      "provider_config_key": "aws",
+      "expressions": {
+        "policy_arn": {
+          "references": [
+            "aws_iam_policy.additional_jsons",
+            "count.index"
+          ]
+        },
+        "role": {
+          "references": [
+            "aws_iam_role.lambda[0].name",
+            "aws_iam_role.lambda[0]",
+            "aws_iam_role.lambda"
+          ]
+        }
+      },
+      "schema_version": 0,
+      "count_expression": {
+        "references": [
+          "local.create_role",
+          "var.attach_policy_jsons",
+          "var.number_of_policy_jsons"
+        ]
+      }
+    },
+    {
+      "address": "aws_iam_role_policy_attachment.additional_many",
+      "mode": "managed",
+      "type": "aws_iam_role_policy_attachment",
+      "name": "additional_many",
+      "provider_config_key": "aws",
+      "expressions": {
+        "policy_arn": {
+          "references": [
+            "var.policies",
+            "count.index"
+          ]
+        },
+        "role": {
+          "references": [
+            "aws_iam_role.lambda[0].name",
+            "aws_iam_role.lambda[0]",
+            "aws_iam_role.lambda"
+          ]
+        }
+      },
+      "schema_version": 0,
+      "count_expression": {
+        "references": [
+          "local.create_role",
+          "var.attach_policies",
+          "var.number_of_policies"
+        ]
+      }
+    },
+    {
+      "address": "aws_iam_role_policy_attachment.additional_one",
+      "mode": "managed",
+      "type": "aws_iam_role_policy_attachment",
+      "name": "additional_one",
+      "provider_config_key": "aws",
+      "expressions": {
+        "policy_arn": {
+          "references": [
+            "var.policy"
+          ]
+        },
+        "role": {
+          "references": [
+            "aws_iam_role.lambda[0].name",
+            "aws_iam_role.lambda[0]",
+            "aws_iam_role.lambda"
+          ]
+        }
+      },
+      "schema_version": 0,
+      "count_expression": {
+        "references": [
+          "local.create_role",
+          "var.attach_policy"
+        ]
+      }
+    },
+    {
+      "address": "aws_iam_role_policy_attachment.async",
+      "mode": "managed",
+      "type": "aws_iam_role_policy_attachment",
+      "name": "async",
+      "provider_config_key": "aws",
+      "expressions": {
+        "policy_arn": {
+          "references": [
+            "aws_iam_policy.async[0].arn",
+            "aws_iam_policy.async[0]",
+            "aws_iam_policy.async"
+          ]
+        },
+        "role": {
+          "references": [
+            "aws_iam_role.lambda[0].name",
+            "aws_iam_role.lambda[0]",
+            "aws_iam_role.lambda"
+          ]
+        }
+      },
+      "schema_version": 0,
+      "count_expression": {
+        "references": [
+          "local.create_role",
+          "var.attach_async_event_policy"
+        ]
+      }
+    },
+    {
+      "address": "aws_iam_role_policy_attachment.dead_letter",
+      "mode": "managed",
+      "type": "aws_iam_role_policy_attachment",
+      "name": "dead_letter",
+      "provider_config_key": "aws",
+      "expressions": {
+        "policy_arn": {
+          "references": [
+            "aws_iam_policy.dead_letter[0].arn",
+            "aws_iam_policy.dead_letter[0]",
+            "aws_iam_policy.dead_letter"
+          ]
+        },
+        "role": {
+          "references": [
+            "aws_iam_role.lambda[0].name",
+            "aws_iam_role.lambda[0]",
+            "aws_iam_role.lambda"
+          ]
+        }
+      },
+      "schema_version": 0,
+      "count_expression": {
+        "references": [
+          "local.create_role",
+          "var.attach_dead_letter_policy"
+        ]
+      }
+    },
+    {
+      "address": "aws_iam_role_policy_attachment.logs",
+      "mode": "managed",
+      "type": "aws_iam_role_policy_attachment",
+      "name": "logs",
+      "provider_config_key": "aws",
+      "expressions": {
+        "policy_arn": {
+          "references": [
+            "aws_iam_policy.logs[0].arn",
+            "aws_iam_policy.logs[0]",
+            "aws_iam_policy.logs"
+          ]
+        },
+        "role": {
+          "references": [
+            "aws_iam_role.lambda[0].name",
+            "aws_iam_role.lambda[0]",
+            "aws_iam_role.lambda"
+          ]
+        }
+      },
+      "schema_version": 0,
+      "count_expression": {
+        "references": [
+          "local.create_role",
+          "var.attach_cloudwatch_logs_policy"
+        ]
+      }
+    },
+    {
+      "address": "aws_iam_role_policy_attachment.tracing",
+      "mode": "managed",
+      "type": "aws_iam_role_policy_attachment",
+      "name": "tracing",
+      "provider_config_key": "aws",
+      "expressions": {
+        "policy_arn": {
+          "references": [
+            "aws_iam_policy.tracing[0].arn",
+            "aws_iam_policy.tracing[0]",
+            "aws_iam_policy.tracing"
+          ]
+        },
+        "role": {
+          "references": [
+            "aws_iam_role.lambda[0].name",
+            "aws_iam_role.lambda[0]",
+            "aws_iam_role.lambda"
+          ]
+        }
+      },
+      "schema_version": 0,
+      "count_expression": {
+        "references": [
+          "local.create_role",
+          "var.attach_tracing_policy"
+        ]
+      }
+    },
+    {
+      "address": "aws_iam_role_policy_attachment.vpc",
+      "mode": "managed",
+      "type": "aws_iam_role_policy_attachment",
+      "name": "vpc",
+      "provider_config_key": "aws",
+      "expressions": {
+        "policy_arn": {
+          "references": [
+            "aws_iam_policy.vpc[0].arn",
+            "aws_iam_policy.vpc[0]",
+            "aws_iam_policy.vpc"
+          ]
+        },
+        "role": {
+          "references": [
+            "aws_iam_role.lambda[0].name",
+            "aws_iam_role.lambda[0]",
+            "aws_iam_role.lambda"
+          ]
+        }
+      },
+      "schema_version": 0,
+      "count_expression": {
+        "references": [
+          "local.create_role",
+          "var.attach_network_policy"
+        ]
+      }
+    }
+  ],
+  "module.lambda_function.aws_lambda_event_source_mapping": [
+    {
+      "address": "aws_lambda_event_source_mapping.this",
+      "mode": "managed",
+      "type": "aws_lambda_event_source_mapping",
+      "name": "this",
+      "provider_config_key": "aws",
+      "expressions": {
+        "batch_size": {
+          "references": [
+            "each.value.batch_size",
+            "each.value"
+          ]
+        },
+        "bisect_batch_on_function_error": {
+          "references": [
+            "each.value.bisect_batch_on_function_error",
+            "each.value"
+          ]
+        },
+        "enabled": {
+          "references": [
+            "each.value.enabled",
+            "each.value"
+          ]
+        },
+        "event_source_arn": {
+          "references": [
+            "each.value.event_source_arn",
+            "each.value"
+          ]
+        },
+        "function_name": {
+          "references": [
+            "aws_lambda_function.this[0].arn",
+            "aws_lambda_function.this[0]",
+            "aws_lambda_function.this"
+          ]
+        },
+        "function_response_types": {
+          "references": [
+            "each.value.function_response_types",
+            "each.value"
+          ]
+        },
+        "maximum_batching_window_in_seconds": {
+          "references": [
+            "each.value.maximum_batching_window_in_seconds",
+            "each.value"
+          ]
+        },
+        "maximum_record_age_in_seconds": {
+          "references": [
+            "each.value.maximum_record_age_in_seconds",
+            "each.value"
+          ]
+        },
+        "maximum_retry_attempts": {
+          "references": [
+            "each.value.maximum_retry_attempts",
+            "each.value"
+          ]
+        },
+        "parallelization_factor": {
+          "references": [
+            "each.value.parallelization_factor",
+            "each.value"
+          ]
+        },
+        "queues": {
+          "references": [
+            "each.value.queues",
+            "each.value"
+          ]
+        },
+        "starting_position": {
+          "references": [
+            "each.value.starting_position",
+            "each.value"
+          ]
+        },
+        "starting_position_timestamp": {
+          "references": [
+            "each.value.starting_position_timestamp",
+            "each.value"
+          ]
+        },
+        "topics": {
+          "references": [
+            "each.value.topics",
+            "each.value"
+          ]
+        }
+      },
+      "schema_version": 0,
+      "for_each_expression": {
+        "references": [
+          "var.event_source_mapping",
+          "local.create",
+          "var.create_function",
+          "var.create_layer",
+          "var.create_unqualified_alias_allowed_triggers"
+        ]
+      }
+    }
+  ],
+  "module.lambda_function.aws_lambda_function": [
+    {
+      "address": "aws_lambda_function.this",
+      "mode": "managed",
+      "type": "aws_lambda_function",
+      "name": "this",
+      "provider_config_key": "aws",
+      "expressions": {
+        "architectures": {
+          "references": [
+            "var.architectures"
+          ]
+        },
+        "code_signing_config_arn": {
+          "references": [
+            "var.code_signing_config_arn"
+          ]
+        },
+        "description": {
+          "references": [
+            "var.description"
+          ]
+        },
+        "filename": {
+          "references": [
+            "local.filename"
+          ]
+        },
+        "function_name": {
+          "references": [
+            "var.function_name"
+          ]
+        },
+        "handler": {
+          "references": [
+            "var.package_type",
+            "var.handler"
+          ]
+        },
+        "image_uri": {
+          "references": [
+            "var.image_uri"
+          ]
+        },
+        "kms_key_arn": {
+          "references": [
+            "var.kms_key_arn"
+          ]
+        },
+        "layers": {
+          "references": [
+            "var.layers"
+          ]
+        },
+        "memory_size": {
+          "references": [
+            "var.memory_size"
+          ]
+        },
+        "package_type": {
+          "references": [
+            "var.package_type"
+          ]
+        },
+        "publish": {
+          "references": [
+            "var.lambda_at_edge",
+            "var.snap_start",
+            "var.publish"
+          ]
+        },
+        "replace_security_groups_on_destroy": {
+          "references": [
+            "var.replace_security_groups_on_destroy"
+          ]
+        },
+        "replacement_security_group_ids": {
+          "references": [
+            "var.replacement_security_group_ids"
+          ]
+        },
+        "reserved_concurrent_executions": {
+          "references": [
+            "var.reserved_concurrent_executions"
+          ]
+        },
+        "role": {
+          "references": [
+            "var.create_role",
+            "aws_iam_role.lambda[0].arn",
+            "aws_iam_role.lambda[0]",
+            "aws_iam_role.lambda",
+            "var.lambda_role"
+          ]
+        },
+        "runtime": {
+          "references": [
+            "var.package_type",
+            "var.runtime"
+          ]
+        },
+        "s3_bucket": {
+          "references": [
+            "local.s3_bucket"
+          ]
+        },
+        "s3_key": {
+          "references": [
+            "local.s3_key"
+          ]
+        },
+        "s3_object_version": {
+          "references": [
+            "local.s3_object_version"
+          ]
+        },
+        "source_code_hash": {
+          "references": [
+            "var.ignore_source_code_hash",
+            "local.filename",
+            "local.filename",
+            "local.was_missing",
+            "local.filename"
+          ]
+        },
+        "tags": {
+          "references": [
+            "var.tags"
+          ]
+        },
+        "timeout": {
+          "references": [
+            "var.lambda_at_edge",
+            "var.timeout",
+            "var.timeout"
+          ]
+        }
+      },
+      "schema_version": 0,
+      "count_expression": {
+        "references": [
+          "local.create",
+          "var.create_function",
+          "var.create_layer"
+        ]
+      },
+      "depends_on": [
+        "null_resource.archive",
+        "aws_s3_object.lambda_package",
+        "aws_cloudwatch_log_group.lambda",
+        "aws_iam_role_policy_attachment.additional_inline",
+        "aws_iam_role_policy_attachment.additional_json",
+        "aws_iam_role_policy_attachment.additional_jsons",
+        "aws_iam_role_policy_attachment.additional_many",
+        "aws_iam_role_policy_attachment.additional_one",
+        "aws_iam_role_policy_attachment.async",
+        "aws_iam_role_policy_attachment.logs",
+        "aws_iam_role_policy_attachment.dead_letter",
+        "aws_iam_role_policy_attachment.vpc",
+        "aws_iam_role_policy_attachment.tracing"
+      ]
+    }
+  ],
+  "module.lambda_function.aws_lambda_function_event_invoke_config": [
+    {
+      "address": "aws_lambda_function_event_invoke_config.this",
+      "mode": "managed",
+      "type": "aws_lambda_function_event_invoke_config",
+      "name": "this",
+      "provider_config_key": "aws",
+      "expressions": {
+        "function_name": {
+          "references": [
+            "aws_lambda_function.this[0].function_name",
+            "aws_lambda_function.this[0]",
+            "aws_lambda_function.this"
+          ]
+        },
+        "maximum_event_age_in_seconds": {
+          "references": [
+            "var.maximum_event_age_in_seconds"
+          ]
+        },
+        "maximum_retry_attempts": {
+          "references": [
+            "var.maximum_retry_attempts"
+          ]
+        },
+        "qualifier": {
+          "references": [
+            "each.key",
+            "aws_lambda_function.this[0].version",
+            "aws_lambda_function.this[0]",
+            "aws_lambda_function.this"
+          ]
+        }
+      },
+      "schema_version": 0,
+      "for_each_expression": {
+        "references": [
+          "local.qualifiers",
+          "local.create",
+          "var.create_function",
+          "var.create_layer",
+          "var.create_async_event_config"
+        ]
+      }
+    }
+  ],
+  "module.lambda_function.aws_lambda_function_url": [
+    {
+      "address": "aws_lambda_function_url.this",
+      "mode": "managed",
+      "type": "aws_lambda_function_url",
+      "name": "this",
+      "provider_config_key": "aws",
+      "expressions": {
+        "authorization_type": {
+          "references": [
+            "var.authorization_type"
+          ]
+        },
+        "function_name": {
+          "references": [
+            "aws_lambda_function.this[0].function_name",
+            "aws_lambda_function.this[0]",
+            "aws_lambda_function.this"
+          ]
+        },
+        "invoke_mode": {
+          "references": [
+            "var.invoke_mode"
+          ]
+        },
+        "qualifier": {
+          "references": [
+            "var.create_unqualified_alias_lambda_function_url",
+            "aws_lambda_function.this[0].version",
+            "aws_lambda_function.this[0]",
+            "aws_lambda_function.this"
+          ]
+        }
+      },
+      "schema_version": 0,
+      "count_expression": {
+        "references": [
+          "local.create",
+          "var.create_function",
+          "var.create_layer",
+          "var.create_lambda_function_url"
+        ]
+      }
+    }
+  ],
+  "module.lambda_function.aws_lambda_layer_version": [
+    {
+      "address": "aws_lambda_layer_version.this",
+      "mode": "managed",
+      "type": "aws_lambda_layer_version",
+      "name": "this",
+      "provider_config_key": "aws",
+      "expressions": {
+        "compatible_architectures": {
+          "references": [
+            "var.compatible_architectures"
+          ]
+        },
+        "compatible_runtimes": {
+          "references": [
+            "var.compatible_runtimes",
+            "var.compatible_runtimes",
+            "var.runtime"
+          ]
+        },
+        "description": {
+          "references": [
+            "var.description"
+          ]
+        },
+        "filename": {
+          "references": [
+            "local.filename"
+          ]
+        },
+        "layer_name": {
+          "references": [
+            "var.layer_name"
+          ]
+        },
+        "license_info": {
+          "references": [
+            "var.license_info"
+          ]
+        },
+        "s3_bucket": {
+          "references": [
+            "local.s3_bucket"
+          ]
+        },
+        "s3_key": {
+          "references": [
+            "local.s3_key"
+          ]
+        },
+        "s3_object_version": {
+          "references": [
+            "local.s3_object_version"
+          ]
+        },
+        "skip_destroy": {
+          "references": [
+            "var.layer_skip_destroy"
+          ]
+        },
+        "source_code_hash": {
+          "references": [
+            "var.ignore_source_code_hash",
+            "local.filename",
+            "local.filename",
+            "local.was_missing",
+            "local.filename"
+          ]
+        }
+      },
+      "schema_version": 0,
+      "count_expression": {
+        "references": [
+          "local.create",
+          "var.create_layer"
+        ]
+      },
+      "depends_on": [
+        "null_resource.archive",
+        "aws_s3_object.lambda_package"
+      ]
+    }
+  ],
+  "module.lambda_function.aws_lambda_permission": [
+    {
+      "address": "aws_lambda_permission.current_version_triggers",
+      "mode": "managed",
+      "type": "aws_lambda_permission",
+      "name": "current_version_triggers",
+      "provider_config_key": "aws",
+      "expressions": {
+        "action": {
+          "references": [
+            "each.value.action",
+            "each.value"
+          ]
+        },
+        "event_source_token": {
+          "references": [
+            "each.value.event_source_token",
+            "each.value"
+          ]
+        },
+        "function_name": {
+          "references": [
+            "aws_lambda_function.this[0].function_name",
+            "aws_lambda_function.this[0]",
+            "aws_lambda_function.this"
+          ]
+        },
+        "principal": {
+          "references": [
+            "each.value.principal",
+            "each.value",
+            "each.value.service",
+            "each.value"
+          ]
+        },
+        "principal_org_id": {
+          "references": [
+            "each.value.principal_org_id",
+            "each.value"
+          ]
+        },
+        "qualifier": {
+          "references": [
+            "aws_lambda_function.this[0].version",
+            "aws_lambda_function.this[0]",
+            "aws_lambda_function.this"
+          ]
+        },
+        "source_account": {
+          "references": [
+            "each.value.source_account",
+            "each.value"
+          ]
+        },
+        "source_arn": {
+          "references": [
+            "each.value.source_arn",
+            "each.value"
+          ]
+        },
+        "statement_id": {
+          "references": [
+            "each.value.statement_id",
+            "each.value",
+            "each.key"
+          ]
+        }
+      },
+      "schema_version": 0,
+      "for_each_expression": {
+        "references": [
+          "var.allowed_triggers",
+          "local.create",
+          "var.create_function",
+          "var.create_layer",
+          "var.create_current_version_allowed_triggers"
+        ]
+      }
+    },
+    {
+      "address": "aws_lambda_permission.unqualified_alias_triggers",
+      "mode": "managed",
+      "type": "aws_lambda_permission",
+      "name": "unqualified_alias_triggers",
+      "provider_config_key": "aws",
+      "expressions": {
+        "action": {
+          "references": [
+            "each.value.action",
+            "each.value"
+          ]
+        },
+        "event_source_token": {
+          "references": [
+            "each.value.event_source_token",
+            "each.value"
+          ]
+        },
+        "function_name": {
+          "references": [
+            "aws_lambda_function.this[0].function_name",
+            "aws_lambda_function.this[0]",
+            "aws_lambda_function.this"
+          ]
+        },
+        "principal": {
+          "references": [
+            "each.value.principal",
+            "each.value",
+            "each.value.service",
+            "each.value"
+          ]
+        },
+        "principal_org_id": {
+          "references": [
+            "each.value.principal_org_id",
+            "each.value"
+          ]
+        },
+        "source_account": {
+          "references": [
+            "each.value.source_account",
+            "each.value"
+          ]
+        },
+        "source_arn": {
+          "references": [
+            "each.value.source_arn",
+            "each.value"
+          ]
+        },
+        "statement_id": {
+          "references": [
+            "each.value.statement_id",
+            "each.value",
+            "each.key"
+          ]
+        }
+      },
+      "schema_version": 0,
+      "for_each_expression": {
+        "references": [
+          "var.allowed_triggers",
+          "local.create",
+          "var.create_function",
+          "var.create_layer",
+          "var.create_unqualified_alias_allowed_triggers"
+        ]
+      }
+    }
+  ],
+  "module.lambda_function.aws_lambda_provisioned_concurrency_config": [
+    {
+      "address": "aws_lambda_provisioned_concurrency_config.current_version",
+      "mode": "managed",
+      "type": "aws_lambda_provisioned_concurrency_config",
+      "name": "current_version",
+      "provider_config_key": "aws",
+      "expressions": {
+        "function_name": {
+          "references": [
+            "aws_lambda_function.this[0].function_name",
+            "aws_lambda_function.this[0]",
+            "aws_lambda_function.this"
+          ]
+        },
+        "provisioned_concurrent_executions": {
+          "references": [
+            "var.provisioned_concurrent_executions"
+          ]
+        },
+        "qualifier": {
+          "references": [
+            "aws_lambda_function.this[0].version",
+            "aws_lambda_function.this[0]",
+            "aws_lambda_function.this"
+          ]
+        }
+      },
+      "schema_version": 1,
+      "count_expression": {
+        "references": [
+          "local.create",
+          "var.create_function",
+          "var.create_layer",
+          "var.provisioned_concurrent_executions"
+        ]
+      }
+    }
+  ],
+  "module.lambda_function.aws_s3_object": [
+    {
+      "address": "aws_s3_object.lambda_package",
+      "mode": "managed",
+      "type": "aws_s3_object",
+      "name": "lambda_package",
+      "provider_config_key": "aws",
+      "expressions": {
+        "acl": {
+          "references": [
+            "var.s3_acl"
+          ]
+        },
+        "bucket": {
+          "references": [
+            "var.s3_bucket"
+          ]
+        },
+        "key": {
+          "references": [
+            "local.s3_key"
+          ]
+        },
+        "server_side_encryption": {
+          "references": [
+            "var.s3_server_side_encryption"
+          ]
+        },
+        "source": {
+          "references": [
+            "data.external.archive_prepare[0].result.filename",
+            "data.external.archive_prepare[0].result",
+            "data.external.archive_prepare[0]",
+            "data.external.archive_prepare"
+          ]
+        },
+        "storage_class": {
+          "references": [
+            "var.s3_object_storage_class"
+          ]
+        },
+        "tags": {
+          "references": [
+            "var.s3_object_tags_only",
+            "var.s3_object_tags",
+            "var.tags",
+            "var.s3_object_tags"
+          ]
+        }
+      },
+      "schema_version": 0,
+      "count_expression": {
+        "references": [
+          "local.create",
+          "var.store_on_s3",
+          "var.create_package"
+        ]
+      },
+      "depends_on": [
+        "null_resource.archive"
+      ]
+    }
+  ],
+  "module.s3_bucket.aws_s3_bucket": [
+    {
+      "address": "aws_s3_bucket.this",
+      "mode": "managed",
+      "type": "aws_s3_bucket",
+      "name": "this",
+      "provider_config_key": "aws",
+      "expressions": {
+        "bucket": {
+          "references": [
+            "var.bucket"
+          ]
+        },
+        "bucket_prefix": {
+          "references": [
+            "var.bucket_prefix"
+          ]
+        },
+        "force_destroy": {
+          "references": [
+            "var.force_destroy"
+          ]
+        },
+        "object_lock_enabled": {
+          "references": [
+            "var.object_lock_enabled"
+          ]
+        },
+        "tags": {
+          "references": [
+            "var.tags"
+          ]
+        }
+      },
+      "schema_version": 0,
+      "count_expression": {
+        "references": [
+          "local.create_bucket"
+        ]
+      }
+    }
+  ],
+  "module.s3_bucket.aws_s3_bucket_accelerate_configuration": [
+    {
+      "address": "aws_s3_bucket_accelerate_configuration.this",
+      "mode": "managed",
+      "type": "aws_s3_bucket_accelerate_configuration",
+      "name": "this",
+      "provider_config_key": "aws",
+      "expressions": {
+        "bucket": {
+          "references": [
+            "aws_s3_bucket.this[0].id",
+            "aws_s3_bucket.this[0]",
+            "aws_s3_bucket.this"
+          ]
+        },
+        "expected_bucket_owner": {
+          "references": [
+            "var.expected_bucket_owner"
+          ]
+        },
+        "status": {
+          "references": [
+            "var.acceleration_status"
+          ]
+        }
+      },
+      "schema_version": 0,
+      "count_expression": {
+        "references": [
+          "local.create_bucket",
+          "var.acceleration_status"
+        ]
+      }
+    }
+  ],
+  "module.s3_bucket.aws_s3_bucket_acl": [
+    {
+      "address": "aws_s3_bucket_acl.this",
+      "mode": "managed",
+      "type": "aws_s3_bucket_acl",
+      "name": "this",
+      "provider_config_key": "aws",
+      "expressions": {
+        "acl": {
+          "references": [
+            "var.acl",
+            "var.acl"
+          ]
+        },
+        "bucket": {
+          "references": [
+            "aws_s3_bucket.this[0].id",
+            "aws_s3_bucket.this[0]",
+            "aws_s3_bucket.this"
+          ]
+        },
+        "expected_bucket_owner": {
+          "references": [
+            "var.expected_bucket_owner"
+          ]
+        }
+      },
+      "schema_version": 0,
+      "count_expression": {
+        "references": [
+          "local.create_bucket",
+          "local.create_bucket_acl"
+        ]
+      },
+      "depends_on": [
+        "aws_s3_bucket_ownership_controls.this"
+      ]
+    }
+  ],
+  "module.s3_bucket.aws_s3_bucket_analytics_configuration": [
+    {
+      "address": "aws_s3_bucket_analytics_configuration.this",
+      "mode": "managed",
+      "type": "aws_s3_bucket_analytics_configuration",
+      "name": "this",
+      "provider_config_key": "aws",
+      "expressions": {
+        "bucket": {
+          "references": [
+            "aws_s3_bucket.this[0].id",
+            "aws_s3_bucket.this[0]",
+            "aws_s3_bucket.this"
+          ]
+        },
+        "name": {
+          "references": [
+            "each.key"
+          ]
+        }
+      },
+      "schema_version": 0,
+      "for_each_expression": {
+        "references": [
+          "var.analytics_configuration",
+          "local.create_bucket"
+        ]
+      }
+    }
+  ],
+  "module.s3_bucket.aws_s3_bucket_cors_configuration": [
+    {
+      "address": "aws_s3_bucket_cors_configuration.this",
+      "mode": "managed",
+      "type": "aws_s3_bucket_cors_configuration",
+      "name": "this",
+      "provider_config_key": "aws",
+      "expressions": {
+        "bucket": {
+          "references": [
+            "aws_s3_bucket.this[0].id",
+            "aws_s3_bucket.this[0]",
+            "aws_s3_bucket.this"
+          ]
+        },
+        "expected_bucket_owner": {
+          "references": [
+            "var.expected_bucket_owner"
+          ]
+        }
+      },
+      "schema_version": 0,
+      "count_expression": {
+        "references": [
+          "local.create_bucket",
+          "local.cors_rules"
+        ]
+      }
+    }
+  ],
+  "module.s3_bucket.aws_s3_bucket_intelligent_tiering_configuration": [
+    {
+      "address": "aws_s3_bucket_intelligent_tiering_configuration.this",
+      "mode": "managed",
+      "type": "aws_s3_bucket_intelligent_tiering_configuration",
+      "name": "this",
+      "provider_config_key": "aws",
+      "expressions": {
+        "bucket": {
+          "references": [
+            "aws_s3_bucket.this[0].id",
+            "aws_s3_bucket.this[0]",
+            "aws_s3_bucket.this"
+          ]
+        },
+        "name": {
+          "references": [
+            "each.key"
+          ]
+        },
+        "status": {
+          "references": [
+            "each.value.status",
+            "each.value",
+            "each.value.status",
+            "each.value"
+          ]
+        }
+      },
+      "schema_version": 0,
+      "for_each_expression": {
+        "references": [
+          "local.intelligent_tiering",
+          "local.create_bucket"
+        ]
+      }
+    }
+  ],
+  "module.s3_bucket.aws_s3_bucket_inventory": [
+    {
+      "address": "aws_s3_bucket_inventory.this",
+      "mode": "managed",
+      "type": "aws_s3_bucket_inventory",
+      "name": "this",
+      "provider_config_key": "aws",
+      "expressions": {
+        "bucket": {
+          "references": [
+            "each.value.bucket",
+            "each.value",
+            "aws_s3_bucket.this[0].id",
+            "aws_s3_bucket.this[0]",
+            "aws_s3_bucket.this"
+          ]
+        },
+        "destination": [
+          {
+            "bucket": [
+              {
+                "account_id": {
+                  "references": [
+                    "each.value.destination.account_id",
+                    "each.value.destination",
+                    "each.value"
+                  ]
+                },
+                "bucket_arn": {
+                  "references": [
+                    "each.value.destination.bucket_arn",
+                    "each.value.destination",
+                    "each.value",
+                    "aws_s3_bucket.this[0].arn",
+                    "aws_s3_bucket.this[0]",
+                    "aws_s3_bucket.this"
+                  ]
+                },
+                "format": {
+                  "references": [
+                    "each.value.destination.format",
+                    "each.value.destination",
+                    "each.value"
+                  ]
+                },
+                "prefix": {
+                  "references": [
+                    "each.value.destination.prefix",
+                    "each.value.destination",
+                    "each.value"
+                  ]
+                }
+              }
+            ]
+          }
+        ],
+        "enabled": {
+          "references": [
+            "each.value.enabled",
+            "each.value"
+          ]
+        },
+        "included_object_versions": {
+          "references": [
+            "each.value.included_object_versions",
+            "each.value"
+          ]
+        },
+        "name": {
+          "references": [
+            "each.key"
+          ]
+        },
+        "optional_fields": {
+          "references": [
+            "each.value.optional_fields",
+            "each.value"
+          ]
+        },
+        "schedule": [
+          {
+            "frequency": {
+              "references": [
+                "each.value.frequency",
+                "each.value"
+              ]
+            }
+          }
+        ]
+      },
+      "schema_version": 0,
+      "for_each_expression": {
+        "references": [
+          "var.inventory_configuration",
+          "local.create_bucket"
+        ]
+      }
+    }
+  ],
+  "module.s3_bucket.aws_s3_bucket_lifecycle_configuration": [
+    {
+      "address": "aws_s3_bucket_lifecycle_configuration.this",
+      "mode": "managed",
+      "type": "aws_s3_bucket_lifecycle_configuration",
+      "name": "this",
+      "provider_config_key": "aws",
+      "expressions": {
+        "bucket": {
+          "references": [
+            "aws_s3_bucket.this[0].id",
+            "aws_s3_bucket.this[0]",
+            "aws_s3_bucket.this"
+          ]
+        },
+        "expected_bucket_owner": {
+          "references": [
+            "var.expected_bucket_owner"
+          ]
+        }
+      },
+      "schema_version": 0,
+      "count_expression": {
+        "references": [
+          "local.create_bucket",
+          "local.lifecycle_rules"
+        ]
+      },
+      "depends_on": [
+        "aws_s3_bucket_versioning.this"
+      ]
+    }
+  ],
+  "module.s3_bucket.aws_s3_bucket_logging": [
+    {
+      "address": "aws_s3_bucket_logging.this",
+      "mode": "managed",
+      "type": "aws_s3_bucket_logging",
+      "name": "this",
+      "provider_config_key": "aws",
+      "expressions": {
+        "bucket": {
+          "references": [
+            "aws_s3_bucket.this[0].id",
+            "aws_s3_bucket.this[0]",
+            "aws_s3_bucket.this"
+          ]
+        },
+        "target_bucket": {
+          "references": [
+            "var.logging[\"target_bucket\"]",
+            "var.logging"
+          ]
+        },
+        "target_prefix": {
+          "references": [
+            "var.logging[\"target_prefix\"]",
+            "var.logging"
+          ]
+        }
+      },
+      "schema_version": 0,
+      "count_expression": {
+        "references": [
+          "local.create_bucket",
+          "var.logging"
+        ]
+      }
+    }
+  ],
+  "module.s3_bucket.aws_s3_bucket_metric": [
+    {
+      "address": "aws_s3_bucket_metric.this",
+      "mode": "managed",
+      "type": "aws_s3_bucket_metric",
+      "name": "this",
+      "provider_config_key": "aws",
+      "expressions": {
+        "bucket": {
+          "references": [
+            "aws_s3_bucket.this[0].id",
+            "aws_s3_bucket.this[0]",
+            "aws_s3_bucket.this"
+          ]
+        },
+        "name": {
+          "references": [
+            "each.value.name",
+            "each.value"
+          ]
+        }
+      },
+      "schema_version": 0,
+      "for_each_expression": {
+        "references": [
+          "local.metric_configuration",
+          "local.create_bucket"
+        ]
+      }
+    }
+  ],
+  "module.s3_bucket.aws_s3_bucket_object_lock_configuration": [
+    {
+      "address": "aws_s3_bucket_object_lock_configuration.this",
+      "mode": "managed",
+      "type": "aws_s3_bucket_object_lock_configuration",
+      "name": "this",
+      "provider_config_key": "aws",
+      "expressions": {
+        "bucket": {
+          "references": [
+            "aws_s3_bucket.this[0].id",
+            "aws_s3_bucket.this[0]",
+            "aws_s3_bucket.this"
+          ]
+        },
+        "expected_bucket_owner": {
+          "references": [
+            "var.expected_bucket_owner"
+          ]
+        },
+        "rule": [
+          {
+            "default_retention": [
+              {
+                "days": {
+                  "references": [
+                    "var.object_lock_configuration.rule.default_retention.days",
+                    "var.object_lock_configuration.rule.default_retention",
+                    "var.object_lock_configuration.rule",
+                    "var.object_lock_configuration"
+                  ]
+                },
+                "mode": {
+                  "references": [
+                    "var.object_lock_configuration.rule.default_retention.mode",
+                    "var.object_lock_configuration.rule.default_retention",
+                    "var.object_lock_configuration.rule",
+                    "var.object_lock_configuration"
+                  ]
+                },
+                "years": {
+                  "references": [
+                    "var.object_lock_configuration.rule.default_retention.years",
+                    "var.object_lock_configuration.rule.default_retention",
+                    "var.object_lock_configuration.rule",
+                    "var.object_lock_configuration"
+                  ]
+                }
+              }
+            ]
+          }
+        ],
+        "token": {
+          "references": [
+            "var.object_lock_configuration.token",
+            "var.object_lock_configuration"
+          ]
+        }
+      },
+      "schema_version": 0,
+      "count_expression": {
+        "references": [
+          "local.create_bucket",
+          "var.object_lock_enabled",
+          "var.object_lock_configuration.rule.default_retention",
+          "var.object_lock_configuration.rule",
+          "var.object_lock_configuration"
+        ]
+      }
+    }
+  ],
+  "module.s3_bucket.aws_s3_bucket_ownership_controls": [
+    {
+      "address": "aws_s3_bucket_ownership_controls.this",
+      "mode": "managed",
+      "type": "aws_s3_bucket_ownership_controls",
+      "name": "this",
+      "provider_config_key": "aws",
+      "expressions": {
+        "bucket": {
+          "references": [
+            "local.attach_policy",
+            "aws_s3_bucket_policy.this[0].id",
+            "aws_s3_bucket_policy.this[0]",
+            "aws_s3_bucket_policy.this",
+            "aws_s3_bucket.this[0].id",
+            "aws_s3_bucket.this[0]",
+            "aws_s3_bucket.this"
+          ]
+        },
+        "rule": [
+          {
+            "object_ownership": {
+              "references": [
+                "var.object_ownership"
+              ]
+            }
+          }
+        ]
+      },
+      "schema_version": 0,
+      "count_expression": {
+        "references": [
+          "local.create_bucket",
+          "var.control_object_ownership"
+        ]
+      },
+      "depends_on": [
+        "aws_s3_bucket_policy.this",
+        "aws_s3_bucket_public_access_block.this",
+        "aws_s3_bucket.this"
+      ]
+    }
+  ],
+  "module.s3_bucket.aws_s3_bucket_policy": [
+    {
+      "address": "aws_s3_bucket_policy.this",
+      "mode": "managed",
+      "type": "aws_s3_bucket_policy",
+      "name": "this",
+      "provider_config_key": "aws",
+      "expressions": {
+        "bucket": {
+          "references": [
+            "aws_s3_bucket.this[0].id",
+            "aws_s3_bucket.this[0]",
+            "aws_s3_bucket.this"
+          ]
+        },
+        "policy": {
+          "references": [
+            "data.aws_iam_policy_document.combined[0].json",
+            "data.aws_iam_policy_document.combined[0]",
+            "data.aws_iam_policy_document.combined"
+          ]
+        }
+      },
+      "schema_version": 0,
+      "count_expression": {
+        "references": [
+          "local.create_bucket",
+          "local.attach_policy"
+        ]
+      },
+      "depends_on": [
+        "aws_s3_bucket_public_access_block.this"
+      ]
+    }
+  ],
+  "module.s3_bucket.aws_s3_bucket_public_access_block": [
+    {
+      "address": "aws_s3_bucket_public_access_block.this",
+      "mode": "managed",
+      "type": "aws_s3_bucket_public_access_block",
+      "name": "this",
+      "provider_config_key": "aws",
+      "expressions": {
+        "block_public_acls": {
+          "references": [
+            "var.block_public_acls"
+          ]
+        },
+        "block_public_policy": {
+          "references": [
+            "var.block_public_policy"
+          ]
+        },
+        "bucket": {
+          "references": [
+            "aws_s3_bucket.this[0].id",
+            "aws_s3_bucket.this[0]",
+            "aws_s3_bucket.this"
+          ]
+        },
+        "ignore_public_acls": {
+          "references": [
+            "var.ignore_public_acls"
+          ]
+        },
+        "restrict_public_buckets": {
+          "references": [
+            "var.restrict_public_buckets"
+          ]
+        }
+      },
+      "schema_version": 0,
+      "count_expression": {
+        "references": [
+          "local.create_bucket",
+          "var.attach_public_policy"
+        ]
+      }
+    }
+  ],
+  "module.s3_bucket.aws_s3_bucket_replication_configuration": [
+    {
+      "address": "aws_s3_bucket_replication_configuration.this",
+      "mode": "managed",
+      "type": "aws_s3_bucket_replication_configuration",
+      "name": "this",
+      "provider_config_key": "aws",
+      "expressions": {
+        "bucket": {
+          "references": [
+            "aws_s3_bucket.this[0].id",
+            "aws_s3_bucket.this[0]",
+            "aws_s3_bucket.this"
+          ]
+        },
+        "role": {
+          "references": [
+            "var.replication_configuration[\"role\"]",
+            "var.replication_configuration"
+          ]
+        }
+      },
+      "schema_version": 0,
+      "count_expression": {
+        "references": [
+          "local.create_bucket",
+          "var.replication_configuration"
+        ]
+      },
+      "depends_on": [
+        "aws_s3_bucket_versioning.this"
+      ]
+    }
+  ],
+  "module.s3_bucket.aws_s3_bucket_request_payment_configuration": [
+    {
+      "address": "aws_s3_bucket_request_payment_configuration.this",
+      "mode": "managed",
+      "type": "aws_s3_bucket_request_payment_configuration",
+      "name": "this",
+      "provider_config_key": "aws",
+      "expressions": {
+        "bucket": {
+          "references": [
+            "aws_s3_bucket.this[0].id",
+            "aws_s3_bucket.this[0]",
+            "aws_s3_bucket.this"
+          ]
+        },
+        "expected_bucket_owner": {
+          "references": [
+            "var.expected_bucket_owner"
+          ]
+        },
+        "payer": {
+          "references": [
+            "var.request_payer"
+          ]
+        }
+      },
+      "schema_version": 0,
+      "count_expression": {
+        "references": [
+          "local.create_bucket",
+          "var.request_payer"
+        ]
+      }
+    }
+  ],
+  "module.s3_bucket.aws_s3_bucket_server_side_encryption_configuration": [
+    {
+      "address": "aws_s3_bucket_server_side_encryption_configuration.this",
+      "mode": "managed",
+      "type": "aws_s3_bucket_server_side_encryption_configuration",
+      "name": "this",
+      "provider_config_key": "aws",
+      "expressions": {
+        "bucket": {
+          "references": [
+            "aws_s3_bucket.this[0].id",
+            "aws_s3_bucket.this[0]",
+            "aws_s3_bucket.this"
+          ]
+        },
+        "expected_bucket_owner": {
+          "references": [
+            "var.expected_bucket_owner"
+          ]
+        }
+      },
+      "schema_version": 0,
+      "count_expression": {
+        "references": [
+          "local.create_bucket",
+          "var.server_side_encryption_configuration"
+        ]
+      }
+    }
+  ],
+  "module.s3_bucket.aws_s3_bucket_versioning": [
+    {
+      "address": "aws_s3_bucket_versioning.this",
+      "mode": "managed",
+      "type": "aws_s3_bucket_versioning",
+      "name": "this",
+      "provider_config_key": "aws",
+      "expressions": {
+        "bucket": {
+          "references": [
+            "aws_s3_bucket.this[0].id",
+            "aws_s3_bucket.this[0]",
+            "aws_s3_bucket.this"
+          ]
+        },
+        "expected_bucket_owner": {
+          "references": [
+            "var.expected_bucket_owner"
+          ]
+        },
+        "mfa": {
+          "references": [
+            "var.versioning[\"mfa\"]",
+            "var.versioning"
+          ]
+        },
+        "versioning_configuration": [
+          {
+            "mfa_delete": {
+              "references": [
+                "var.versioning[\"mfa_delete\"]",
+                "var.versioning",
+                "var.versioning[\"mfa_delete\"]",
+                "var.versioning"
+              ]
+            },
+            "status": {
+              "references": [
+                "var.versioning[\"enabled\"]",
+                "var.versioning",
+                "var.versioning[\"status\"]",
+                "var.versioning",
+                "var.versioning[\"status\"]",
+                "var.versioning"
+              ]
+            }
+          }
+        ]
+      },
+      "schema_version": 0,
+      "count_expression": {
+        "references": [
+          "local.create_bucket",
+          "var.versioning"
+        ]
+      }
+    }
+  ],
+  "module.s3_bucket.aws_s3_bucket_website_configuration": [
+    {
+      "address": "aws_s3_bucket_website_configuration.this",
+      "mode": "managed",
+      "type": "aws_s3_bucket_website_configuration",
+      "name": "this",
+      "provider_config_key": "aws",
+      "expressions": {
+        "bucket": {
+          "references": [
+            "aws_s3_bucket.this[0].id",
+            "aws_s3_bucket.this[0]",
+            "aws_s3_bucket.this"
+          ]
+        },
+        "expected_bucket_owner": {
+          "references": [
+            "var.expected_bucket_owner"
+          ]
+        }
+      },
+      "schema_version": 0,
+      "count_expression": {
+        "references": [
+          "local.create_bucket",
+          "var.website"
+        ]
+      }
+    }
+  ]
+}

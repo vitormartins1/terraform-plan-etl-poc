@@ -1,0 +1,24 @@
+version: "3.8"
+
+services:
+  localstack:
+    image: localstack/localstack
+    container_name: localstack
+    ports:
+      - "4566:4566"
+      - "4510-4559:4510-4559"
+    environment:
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - SERVICES=ec2,s3,iam,lambda,ssm,sts,sqs,sns
+      - AWS_DEFAULT_REGION=us-east-1
+    volumes:
+      - "./localstack_data:/var/lib/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+
+  # structurizr-lite:
+  #   image: structurizr/lite
+  #   container_name: structurizr-lite
+  #   ports:
+  #     - "8080:8080" # Porta padrão do Structurizr Lite
+  #   volumes:
+  #     - "./docs:/usr/local/structurizr" # Montando a pasta `docs` como volume
